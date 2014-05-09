@@ -1744,12 +1744,12 @@ MODULE* PCB_PARSER::parseMODULE( wxArrayString* aInitialComments ) throw( IO_ERR
             module->Add3DModel( parse3DModel() );
             break;
 
+        case T_SYMBOL:
+            skipUnknown();
+            break;
+
         default:
-            Expecting( "locked, placed, tedit, tstamp, at, descr, tags, path, "
-                       "autoplace_cost90, autoplace_cost180, solder_mask_margin, "
-                       "solder_paste_margin, solder_paste_ratio, clearance, "
-                       "zone_connect, thermal_width, thermal_gap, attr, fp_text, "
-                       "fp_arc, fp_circle, fp_curve, fp_line, fp_poly, pad, or model" );
+            Expecting( "symbol" );
         }
     }
 
@@ -2771,4 +2771,25 @@ PCB_TARGET* PCB_PARSER::parsePCB_TARGET() throw( IO_ERROR, PARSE_ERROR )
     }
 
     return target.release();
+}
+
+void PCB_PARSER::skipUnknown() throw( IO_ERROR, PARSE_ERROR )
+{
+    int parenDepth = 1; //we have passed one left paren to get here
+    T token = T_SYMBOL;
+
+    // read until we have skipped the sexp starting here
+    while ( parenDepth > 0 )
+    {
+        token = NextTok();
+
+        if ( token == T_LEFT )
+        {
+            parenDepth++;
+        }
+        else if ( token == T_RIGHT )
+        {
+            parenDepth--;
+        }
+    }
 }

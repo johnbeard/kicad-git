@@ -106,6 +106,16 @@ class PCB_PARSER : public PCB_LEXER
     PCB_TARGET*     parsePCB_TARGET() throw( IO_ERROR, PARSE_ERROR );
     BOARD*          parseBOARD() throw( IO_ERROR, PARSE_ERROR );
 
+    /**
+     * Function skipUnknown
+     * silently discards the sexp up the end of the current cdr
+     *
+     * For example, if the last token read was "example", the entirety of the
+     * following expression would be consumed
+     *
+     *    (example (foo 2 (bar 45)))
+     */
+    void            skipUnknown() throw( IO_ERROR, PARSE_ERROR );
 
     /**
      * Function lookUpLayer
