@@ -52,6 +52,7 @@ class PCB_TARGET;
 class VIA;
 class S3D_MASTER;
 class ZONE_CONTAINER;
+class PCB_UNKNOWN;
 
 
 /**
@@ -107,15 +108,16 @@ class PCB_PARSER : public PCB_LEXER
     BOARD*          parseBOARD() throw( IO_ERROR, PARSE_ERROR );
 
     /**
-     * Function skipUnknown
-     * silently discards the sexp up the end of the current cdr
+     * Function parseUnknown
+     *
+     * consume and store the sexp up the end of the current cdr
      *
      * For example, if the last token read was "example", the entirety of the
      * following expression would be consumed
      *
      *    (example (foo 2 (bar 45)))
      */
-    void            skipUnknown() throw( IO_ERROR, PARSE_ERROR );
+    PCB_UNKNOWN*    parseUnknown() throw( IO_ERROR, PARSE_ERROR );
 
     /**
      * Function lookUpLayer

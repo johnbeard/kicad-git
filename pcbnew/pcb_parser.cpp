@@ -1745,7 +1745,7 @@ MODULE* PCB_PARSER::parseMODULE( wxArrayString* aInitialComments ) throw( IO_ERR
             break;
 
         case T_SYMBOL:
-            skipUnknown();
+            parseUnknown();
             break;
 
         default:
@@ -2773,14 +2773,55 @@ PCB_TARGET* PCB_PARSER::parsePCB_TARGET() throw( IO_ERROR, PARSE_ERROR )
     return target.release();
 }
 
-void PCB_PARSER::skipUnknown() throw( IO_ERROR, PARSE_ERROR )
+class PCB_UNKNOWN: public EDA_ITEM
+{
+public:
+
+    PCB_UNKNOWN( BOARD_ITEM* aParent ) :
+        EDA_ITEM( aParent, PCB_UNKNOWN_T )
+    {
+    }
+
+    void Show(int, std::ostream&) const {}
+
+    void AddToken(PCB_KEYS_T::T tokenType, const char* tokenText)
+    {
+        token.push_back(tokenType);
+        text.push_back(wxString::FromUTF8(tokenText));
+    }
+
+    void Print()
+    {
+        for (unsigned i = 0; i < token.size(); i++)
+        {
+            std::cout << token[i] << ":" << TO_UTF8(text[i]);
+
+            // a space if we're not following a ( or preceding a )
+            if (token[i] != T_LEFT && !(i < (token.size() - 2) && token[i + 1] == T_RIGHT))
+            {
+                std::cout << " ";
+            }
+        }
+
+        std::cout << std::endl << std::flush;
+    }
+private:
+    std::vector<PCB_KEYS_T::T> token;
+    std::vector<wxString> text;
+};
+
+PCB_UNKNOWN* PCB_PARSER::parseUnknown() throw( IO_ERROR, PARSE_ERROR )
 {
     int parenDepth = 1; //we have passed one left paren to get here
     T token = T_SYMBOL;
 
+    std::auto_ptr< PCB_UNKNOWN > unknown( new PCB_UNKNOWN( NULL ) );
+
     // read until we have skipped the sexp starting here
     while ( parenDepth > 0 )
     {
+        unknown->AddToken(token, CurText());
+
         token = NextTok();
 
         if ( token == T_LEFT )
@@ -2792,4 +2833,8 @@ void PCB_PARSER::skipUnknown() throw( IO_ERROR, PARSE_ERROR )
             parenDepth--;
         }
     }
+
+    unknown->Print();
+
+    return unknown.release();
 }

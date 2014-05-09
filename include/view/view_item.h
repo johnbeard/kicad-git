@@ -66,6 +66,7 @@ enum KICAD_T
     PCB_TARGET_T,           ///< class PCB_TARGET, a target (graphic item)
     PCB_ZONE_AREA_T,        ///< class ZONE_CONTAINER, a zone area
     PCB_ITEM_LIST_T,        ///< class BOARD_ITEM_LIST, a list of board items
+    PCB_UNKNOWN_T,          ///< class PCB_UNKNOWN, a piece of unrecognised structured data
 
     // Schematic draw Items.  The order of these items effects the sort order.
     // It is currently ordered to mimic the old Eeschema locate behavior where
